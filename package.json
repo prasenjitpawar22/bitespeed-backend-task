@@ -1,0 +1,36 @@
+{
+  "name": "bitespeed-backend-task",
+  "version": "1.0.0",
+  "description": "backend task bitspeed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q ./dist/index.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prasenjitpawar22/bitespeed-backend-task.git"
+  },
+  "author": "prasenjit pawar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prasenjitpawar22/bitespeed-backend-task/issues"
+  },
+  "homepage": "https://github.com/prasenjitpawar22/bitespeed-backend-task#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.0.0",
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.2",
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1",
+    "prisma": "^5.0.0",
+    "typescript": "^5.1.6"
+  }
+}
