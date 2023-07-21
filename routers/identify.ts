@@ -34,12 +34,75 @@ indentify.post("/", async (req: Request, res: Response) => {
 
   const { email, phoneNumber } = type.body;
 
-  const contacts = await prisma.contact.findMany({
+  var data: Data = {
+    contact: {},
+  };
+  const contact = await prisma.contact.findFirst({
     where: {
-      email,
-      phoneNumber,
+      //   email: email,
+      ...(email && { email }),
+      ...(phoneNumber && { phoneNumber }),
     },
   });
+  console.log(contact, email, phoneNumber);
+
+  if (contact) {
+    // get the primary id
+    if (contact?.linkPrecedence === "primary") {
+      data.contact.primaryContatctId = contact.id;
+
+      data.contact.emails = [];
+      data.contact.emails.push(contact.email!); // primary email not null here
+
+      const allContacts = await prisma.contact.findMany({
+        where: { linkedId: contact.id },
+      });
+
+      data.contact.phoneNumbers = [];
+      data.contact.secondaryContactIds = [];
+
+      allContacts.forEach((contact) => {
+        data?.contact.emails?.push(contact.email!);
+        data!.contact!.phoneNumbers!.push(contact.phoneNumber!); // primary email not null here
+        data!.contact!.secondaryContactIds!.push(contact.id!); // primary email not null here
+      });
+
+      return res.status(200).send({ data });
+    } else {
+      // not a primary one
+      // then get the primary one
+      const primaryContact = await prisma.contact.findFirst({
+        where: { id: contact.linkedId! },
+      });
+
+      if (primaryContact) {
+        data.contact.primaryContatctId = primaryContact.id;
+
+        data.contact.emails = [];
+        data.contact.emails.push(primaryContact.email!); // primary email not null here
+
+        // not get all secondary contacts
+        const allContacts = await prisma.contact.findMany({
+          where: { linkedId: primaryContact.id },
+        });
+
+        data.contact.phoneNumbers = [];
+        data.contact.phoneNumbers.push(primaryContact.phoneNumber!); // primary email not null here
+
+        data.contact.secondaryContactIds = [];
+
+        allContacts.forEach((contact) => {
+          data?.contact.emails?.push(contact.email!);
+          data!.contact!.phoneNumbers!.push(contact.phoneNumber!); // primary email not null here
+          data!.contact!.secondaryContactIds!.push(contact.id!); // primary email not null here
+        });
+        return res.status(200).send({ data });
+      }
+      return res.status(400).send({ e: "err" });
+    }
+  }
+
+  return res.status(400).send({ message: "not found" });
 });
 
 /**
@@ -138,3 +201,12 @@ indentify.post("/upsert", async (req: Request, res: Response) => {
     res.status(400).send(JSON.stringify(error));
   }
 });
+
+type Data = {
+  contact: {
+    primaryContatctId?: number;
+    emails?: string[]; // first element being email of primary contact
+    phoneNumbers?: string[]; // first element being phoneNumber of primary contact
+    secondaryContactIds?: number[]; // Array of all Contact IDs that are "secondary" to the primary contact
+  };
+} | null;
