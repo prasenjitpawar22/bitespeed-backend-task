@@ -1,9 +1,13 @@
 ## endpoints
 
-# POST
+## POST
 
-# api/identify
+## Body - {email?, phoneNumber?}
 
-# POST
+## api/identify
 
-# api/identify/upsert
+## POST
+
+## Body - {email, phoneNumber}
+
+## api/identify/upsert
